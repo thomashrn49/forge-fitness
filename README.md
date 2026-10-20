@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="https://forgecoachfitness.netlify.app"><b>👉 Ouvrir l’application</b></a>
+  <a href="https://forgecoachfitness.pages.dev"><b>👉 Ouvrir l’application</b></a>
 </p>
 
 <p align="center">
@@ -18,7 +18,7 @@
   <img alt="Vite" src="https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white" />
   <img alt="Tailwind CSS" src="https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?logo=tailwindcss&logoColor=white" />
   <img alt="PWA" src="https://img.shields.io/badge/PWA-hors_ligne-FF6B1A" />
-  <img alt="Netlify" src="https://img.shields.io/badge/déployé_sur-Netlify-00C7B7?logo=netlify&logoColor=white" />
+  <img alt="Cloudflare Pages" src="https://img.shields.io/badge/déployé_sur-Cloudflare_Pages-F38020?logo=cloudflare&logoColor=white" />
 </p>
 
 ---
@@ -99,7 +99,7 @@ Le pas-à-pas est aussi disponible dans l’app (menu **Installer l’app**).
 | État & persistance | Zustand + couche de stockage IndexedDB maison (`src/lib/storage.js`) |
 | Application installable | vite-plugin-pwa (Workbox) : manifeste, service worker, cache hors ligne, mises à jour à la demande |
 | Polices | Barlow / Barlow Condensed embarquées (aucune dépendance réseau) |
-| Build & hébergement | Vite, Netlify |
+| Build & hébergement | Vite, Cloudflare Pages (publication automatique à chaque push sur `main`) |
 
 ## Structure
 
@@ -129,7 +129,7 @@ Régénérer les icônes : `python scripts/make-icons.py` (nécessite Pillow).
 
 ## Déploiement
 
-Le dossier `dist/` est publié sur Netlify (fichier `public/_redirects` pour le routage). Voir [GUIDE-MISE-EN-LIGNE.md](GUIDE-MISE-EN-LIGNE.md) pour la mise en ligne et l’installation pas à pas.
+L’application est hébergée sur **Cloudflare Pages**, relié à ce dépôt : chaque push sur `main` reconstruit et publie automatiquement le site (`npm run build` → `dist/`, règles de cache dans `public/_headers`).
 
 ---
 

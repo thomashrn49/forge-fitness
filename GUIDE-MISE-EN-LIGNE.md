@@ -2,15 +2,9 @@
 
 Seul le **code** de l’app est hébergé sur Netlify. Tes séances, pesées et records restent **uniquement dans ton téléphone**.
 
-## Étape 1 — Mettre l’app en ligne (une seule fois, ~5 min, sur ton PC)
+## Étape 1 — L’app est déjà en ligne
 
-1. Va sur **https://app.netlify.com/signup** et crée un compte gratuit (avec ton email ou GitHub).
-2. Une fois connecté, va sur **https://app.netlify.com/drop**.
-3. Glisse-dépose le fichier **`FORGE-a-deposer-sur-Netlify.zip`** (dans le dossier `fitness-app`) dans la zone indiquée.
-4. Attends quelques secondes : Netlify te donne une adresse du type `https://nom-au-hasard-123.netlify.app`.
-5. *(Facultatif)* Pour une adresse plus simple : **Site configuration → Change site name** → par exemple `forge-coach` → ton app sera sur `https://forge-coach.netlify.app` (s’il est déjà pris, essaie une variante).
-
-> Si tu déposes sans être connecté, Netlify supprime le site au bout d’une heure : crée bien le compte avant.
+FORGE est hébergée gratuitement sur **Cloudflare Pages**, à l’adresse **https://forgecoachfitness.pages.dev**. Le site est relié au dépôt GitHub : chaque mise à jour poussée sur GitHub est publiée automatiquement en 1 à 2 minutes.
 
 ## Étape 2 — Installer l’app
 
@@ -29,10 +23,7 @@ Ouvre l’app une première fois avec du réseau : elle se télécharge entière
 
 ## Mettre à jour l’app plus tard
 
-Quand je modifie FORGE, je régénère le fichier zip. Ensuite :
-1. Netlify → ton site → onglet **Deploys**.
-2. Glisse-dépose le nouveau zip dans la zone « Drag and drop your site output folder here ».
-3. Sur ton téléphone, l’app affiche **« Nouvelle version disponible »** → **Mettre à jour**. Tes données sont conservées.
+Rien à faire de ton côté : chaque push sur GitHub publie la nouvelle version. Sur le téléphone, l’app affiche **« Nouvelle version disponible »** → **Mettre à jour**. Tes données sont conservées.
 
 ## Tes données : comment elles sont protégées
 
@@ -45,6 +36,6 @@ Quand je modifie FORGE, je régénère le fichier zip. Ensuite :
 ## Bon à savoir
 
 - **Ce qui efface les données** : supprimer l’icône FORGE de l’iPhone, ou effacer les données des sites dans les réglages de Safari. D’où l’intérêt des sauvegardes iCloud.
-- **Choisis le nom du site Netlify avant de commencer** : changer l’adresse plus tard crée une app « vide » (tu pourrais restaurer ta sauvegarde, mais autant l’éviter).
+- **L’adresse ne doit plus changer** : les données sont liées à l’adresse du site. En cas de changement, il faut sauvegarder puis restaurer.
 - **Écran allumé** : pendant une séance, l’écran ne se met pas en veille.
 - **Données du site de test** : ce que tu as saisi sur `localhost` dans ton PC ne passe pas sur le téléphone (sauvegarde puis restauration si tu veux le récupérer).
