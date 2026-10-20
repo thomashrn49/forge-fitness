@@ -1,6 +1,6 @@
 # Mettre FORGE sur ton téléphone (gratuit)
 
-Seul le **code** de l’app est hébergé sur Netlify. Tes séances, pesées et records restent **uniquement dans ton téléphone**.
+Seul le **code** de l’app est hébergé sur Cloudflare Pages. Tes séances, pesées et records restent **uniquement dans ton téléphone**.
 
 ## Étape 1 — L’app est déjà en ligne
 
@@ -9,13 +9,13 @@ FORGE est hébergée gratuitement sur **Cloudflare Pages**, à l’adresse **htt
 ## Étape 2 — Installer l’app
 
 ### iPhone / iPad
-1. Ouvre l’adresse Netlify dans **Safari** (obligatoire, pas Chrome).
+1. Ouvre **https://forgecoachfitness.pages.dev** dans **Safari** (obligatoire, pas Chrome).
 2. Touche **Partager** (carré avec une flèche vers le haut).
 3. Choisis **« Sur l’écran d’accueil »** → **Ajouter**.
 4. Ouvre FORGE depuis l’icône orange.
 
 ### Android
-1. Ouvre l’adresse Netlify dans **Chrome**.
+1. Ouvre **https://forgecoachfitness.pages.dev** dans **Chrome**.
 2. Touche **Installer** dans la bannière, ou menu **⋮ → Installer l’application**.
 3. FORGE apparaît dans tes applications.
 

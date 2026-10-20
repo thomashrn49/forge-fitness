@@ -16,7 +16,6 @@ import Tools from './pages/Tools'
 import Profile from './pages/Profile'
 import Install from './pages/Install'
 import { UpdatePrompt, StorageAlert } from './components/AppBanners'
-import MovedBanner from './components/MovedBanner'
 
 // the store loads asynchronously from the phone's storage: wait before deciding which screen to show
 function useHydrated() {
@@ -39,7 +38,7 @@ function Splash() {
 }
 
 export default function App() {
-  return <><Screens /><UpdatePrompt /><StorageAlert /><MovedBanner /></>
+  return <><Screens /><UpdatePrompt /><StorageAlert /></>
 }
 
 function Screens() {

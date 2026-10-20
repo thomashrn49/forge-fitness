@@ -6,7 +6,6 @@ dist-*
 
 # local tooling
 .claude/
-.netlify/
 *.log
 .DS_Store
 Thumbs.db
