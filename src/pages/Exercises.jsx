@@ -3,6 +3,7 @@ import { Search, Star, Dumbbell, Flame, SlidersHorizontal, Wand2, X } from 'luci
 import { useStore } from '../lib/store'
 import { PageHeader, LevelDots, EmptyState } from '../components/ui'
 import BodyMap from '../components/BodyMap'
+import { hasDemo, demoThumb } from '../data/demos'
 import ExerciseDetail from '../components/ExerciseDetail'
 import SmartSearch, { Highlight, saveRecent } from '../components/SmartSearch'
 import { EXERCISES, MUSCLE_GROUPS, MUSCLES, EQUIPMENT, LEVELS, exerciseGroup } from '../data/exercises'
@@ -99,9 +100,14 @@ export default function Exercises() {
               <li key={e.id} className="animate-fade-up" style={{ animationDelay: `${Math.min(i, 12) * 25}ms` }}>
                 <div className="group card h-full flex overflow-hidden hover:border-primary/50 transition">
                   <button onClick={() => { if (q) saveRecent(q); setOpen(e.id) }} className="flex-1 flex gap-3 p-4 text-left cursor-pointer min-w-0">
-                    <div className="w-[72px] shrink-0 rounded-xl bg-raised/60 p-1.5 self-start">
-                      <BodyMap primary={e.primary} secondary={e.secondary} className="[&_figcaption]:hidden" />
-                    </div>
+                    {hasDemo(e.id) ? (
+                      <img src={demoThumb(e.id)} alt="" loading="lazy" decoding="async" width="96" height="64"
+                        className="w-24 h-16 shrink-0 rounded-xl object-cover bg-raised self-start" />
+                    ) : (
+                      <div className="w-24 h-16 shrink-0 rounded-xl bg-raised/60 p-1 self-start">
+                        <BodyMap primary={e.primary} secondary={e.secondary} className="[&_figcaption]:hidden h-full [&_svg]:max-h-14" />
+                      </div>
+                    )}
                     <div className="min-w-0 flex-1">
                       <h3 className="font-display text-xl font-bold uppercase leading-tight group-hover:text-primary transition"><Highlight text={e.name} query={q} /></h3>
                       <p className="text-sm text-muted mt-0.5 truncate">{e.primary.map((m) => MUSCLES[m]).join(', ')}</p>

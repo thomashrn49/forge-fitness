@@ -274,3 +274,55 @@ export function muscleFatigue(workouts, now = Date.now()) {
   for (const k in f) f[k] = Math.min(1, f[k])
   return f
 }
+
+// ── Progressive overload (double progression) ─────────────────────────────
+// Reach the top of the rep range on every work set → add weight and go back to the bottom of the range.
+// Otherwise keep the weight and aim for one more rep.
+const parseRange = (target) => {
+  const m = String(target ?? '').match(/(\d+)(?:\s*[-–à]\s*(\d+))?/)
+  if (!m) return null
+  const lo = +m[1], hi = m[2] ? +m[2] : +m[1]
+  return { lo: Math.min(lo, hi), hi: Math.max(lo, hi) }
+}
+function loadStep(ex) {
+  if (ex.equipment === 'Haltères') return 2
+  if (ex.equipment === 'Kettlebell') return 4
+  const lower = ex.primary.some((m) => ['quads', 'hamstrings', 'glutes'].includes(m)) || ex.id === 'deadlift'
+  if ((ex.equipment === 'Barre' || ex.equipment === 'Machine') && lower && ex.met >= 5.5) return 5
+  return 2.5
+}
+
+/** @returns {{ kg?, reps?, sec?, kind: 'up'|'reps'|'time', delta: string, reason: string } | null} */
+export function suggestProgression(ex, lastSets, target) {
+  if (!ex || ex.type === 'cardio' || ex.cat === 'mobility') return null
+  const work = (lastSets || []).filter((s) => s.done && !s.warmup)
+  if (!work.length) return null
+  const range = parseRange(target)
+  const frNum = (n) => String(n).replace('.', ',')
+  const summary = work.map((s) => (ex.type === 'time' ? `${s.sec}s` : s.kg ? `${frNum(s.kg)}×${s.reps}` : `${s.reps}`)).join(' · ')
+
+  if (ex.type === 'time') {
+    const best = Math.max(...work.map((s) => +s.sec || 0))
+    return { sec: best + 5, kind: 'time', delta: '+5 s', reason: `Dernière fois : ${summary}` }
+  }
+  const loaded = work.filter((s) => +s.kg > 0)
+  if (ex.type === 'bodyweight' && !loaded.length) {
+    const minReps = Math.min(...work.map((s) => +s.reps || 0))
+    const maxReps = Math.max(...work.map((s) => +s.reps || 0))
+    if (range && minReps >= range.hi) {
+      return { kg: 2.5, reps: range.lo, kind: 'up', delta: '+2,5 kg de lest', reason: `Toutes tes séries à ${range.hi} reps : ajoute du lest (ou une variante plus dure).` }
+    }
+    const goal = range ? Math.min(range.hi, minReps + 1) : maxReps + 1
+    return { reps: goal, kind: 'reps', delta: '+1 rep', reason: `Dernière fois : ${summary}. Vise ${goal} reps sur chaque série.` }
+  }
+  const top = Math.max(...loaded.map((s) => +s.kg))
+  const atTop = loaded.filter((s) => +s.kg === top)
+  const minReps = Math.min(...atTop.map((s) => +s.reps || 0))
+  const hi = range?.hi ?? 12
+  const lo = range?.lo ?? Math.max(5, hi - 4)
+  if (minReps >= hi) {
+    const step = loadStep(ex)
+    return { kg: Math.round((top + step) * 4) / 4, reps: lo, kind: 'up', delta: `+${String(step).replace('.', ',')} kg`, reason: `Tu as réussi ${atTop.length}×${minReps} à ${String(top).replace('.', ',')} kg : on monte la charge !` }
+  }
+  return { kg: top, reps: Math.min(hi, minReps + 1), kind: 'reps', delta: '+1 rep', reason: `Dernière fois : ${summary}. Vise une répétition de plus.` }
+}

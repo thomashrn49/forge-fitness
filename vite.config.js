@@ -38,6 +38,12 @@ export default defineConfig({
         navigateFallback: '/index.html',
         cleanupOutdatedCaches: true,
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
+        // exercise photos are not pre-downloaded (3.6 Mo): each one is kept on the phone after its first display
+        runtimeCaching: [{
+          urlPattern: ({ url }) => url.pathname.startsWith('/demos/'),
+          handler: 'CacheFirst',
+          options: { cacheName: 'forge-demos', expiration: { maxEntries: 600, maxAgeSeconds: 60 * 60 * 24 * 365 }, cacheableResponse: { statuses: [0, 200] } },
+        }],
       },
       devOptions: { enabled: false },
     }),

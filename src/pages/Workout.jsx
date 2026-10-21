@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import {
+  TrendingUp, Wand2,
   Play, Plus, Check, Trash2, ChevronUp, ChevronDown, Info, Timer, Flame, Dumbbell, Flag, X, StickyNote, RotateCcw, Zap, ListChecks, MoreHorizontal,
 } from 'lucide-react'
 import { useStore } from '../lib/store'
@@ -11,7 +12,8 @@ import ExercisePicker from '../components/ExercisePicker'
 import ExerciseDetail from '../components/ExerciseDetail'
 import { EX_BY_ID, MUSCLES } from '../data/exercises'
 import { PROGRAMS } from '../data/programs'
-import { fmt, fmtClock, fmtKg, workoutCalories, lastPerformance, setVolume, relDay, fmtDuration } from '../lib/calc'
+import { fmt, fmtClock, fmtKg, workoutCalories, lastPerformance, setVolume, relDay, fmtDuration, suggestProgression, computeRecords, e1rm } from '../lib/calc'
+import PRCelebration from '../components/PRCelebration'
 import { suggestNext } from './Dashboard'
 
 // ── Sound cue at end of rest
@@ -116,6 +118,29 @@ function ActiveWorkout() {
   const [confirmDiscard, setConfirmDiscard] = useState(false)
 
   const kcal = workoutCalories(active, profile.weight, elapsed)
+  const records = useMemo(() => computeRecords(workouts), [workouts])
+  const [celebration, setCelebration] = useState(null)
+
+  // a set is being validated: is it a new personal record (vs history AND this session)?
+  const onSetDone = (we, st) => {
+    const ex = EX_BY_ID[we.exId]
+    const rec = records[we.exId]
+    if (!rec || st.warmup) return // first time on this exercise: that's a baseline, not a record
+    const others = we.sets.filter((x) => x.done && !x.warmup && x.id !== st.id)
+    let gain = null
+    if (+st.kg > 0 && +st.reps > 0) {
+      const v = e1rm(+st.kg, +st.reps)
+      const best = Math.max(rec.e1rm || 0, ...others.map((x) => e1rm(+x.kg, +x.reps)))
+      if (best > 0 && v > best * 1.005) gain = { label: '1RM estimé', value: `${fmt(v, 1)} kg`, delta: `+${fmt(v - best, 1)} kg`, detail: `${st.kg} kg × ${st.reps}` }
+    } else if (ex.type === 'bodyweight' && +st.reps > 0) {
+      const best = Math.max(rec.reps || 0, ...others.map((x) => +x.reps || 0))
+      if (best > 0 && +st.reps > best) gain = { label: 'Répétitions', value: `${st.reps} reps`, delta: `+${st.reps - best}`, detail: 'au poids du corps' }
+    } else if (ex.type === 'time' && +st.sec > 0) {
+      const best = Math.max(rec.sec || 0, ...others.map((x) => +x.sec || 0))
+      if (best > 0 && +st.sec > best) gain = { label: 'Temps', value: `${st.sec} s`, delta: `+${st.sec - best} s`, detail: 'tenue' }
+    }
+    if (gain) setCelebration({ id: Date.now(), exercise: ex.name, ...gain })
+  }
   const totals = useMemo(() => {
     let done = 0, total = 0, vol = 0
     for (const we of active.exercises) {
@@ -170,7 +195,7 @@ function ActiveWorkout() {
 
       <div className="space-y-4">
         {active.exercises.map((we, i) => (
-          <ExerciseBlock key={we.id} we={we} index={i} count={active.exercises.length} history={workouts} onInfo={() => setDetail(we.exId)} />
+          <ExerciseBlock key={we.id} we={we} index={i} count={active.exercises.length} history={workouts} onInfo={() => setDetail(we.exId)} onSetDone={onSetDone} />
         ))}
       </div>
 
@@ -179,6 +204,7 @@ function ActiveWorkout() {
       )}
 
       <RestTimer active={active} setRest={s.setRest} sound={settings.sound} />
+      <PRCelebration data={celebration} sound={settings.sound} onDone={() => setCelebration(null)} />
 
       <ExercisePicker open={picker} onClose={() => setPicker(false)} onPick={(ids) => s.addExercises(ids)} />
       <ExerciseDetail exId={detail} onClose={() => setDetail(null)} />
@@ -211,13 +237,19 @@ function ActiveWorkout() {
   )
 }
 
-function ExerciseBlock({ we, index, count, history, onInfo }) {
+function ExerciseBlock({ we, index, count, history, onInfo, onSetDone }) {
   const s = useStore()
   const ex = EX_BY_ID[we.exId]
   const prev = useMemo(() => lastPerformance(history, we.exId), [history, we.exId])
   const [noteOpen, setNoteOpen] = useState(!!we.note)
   const [menu, setMenu] = useState(false)
   const allDone = we.sets.length > 0 && we.sets.every((x) => x.done)
+  const suggestion = useMemo(() => suggestProgression(ex, prev, we.target), [ex, prev, we.target])
+  const pending = we.sets.filter((x) => !x.done && !x.warmup)
+  const applied = suggestion && pending.length > 0 && pending.every((x) =>
+    suggestion.sec != null ? +x.sec === suggestion.sec : (suggestion.kg == null || +x.kg === suggestion.kg) && (suggestion.reps == null || +x.reps === suggestion.reps))
+  const applySuggestion = () => pending.forEach((x) => s.updateSet(we.id, x.id,
+    suggestion.sec != null ? { sec: suggestion.sec } : { ...(suggestion.kg != null ? { kg: suggestion.kg } : {}), ...(suggestion.reps != null ? { reps: suggestion.reps } : {}) }))
 
   const cols = ex.type === 'cardio' ? ['Série', 'Minutes', 'Km', ''] :
     ex.type === 'time' ? ['Série', 'Précédent', 'Secondes', ''] :
@@ -267,6 +299,22 @@ function ExerciseBlock({ we, index, count, history, onInfo }) {
         </div>
       </div>
 
+      {suggestion && !allDone && (
+        <div className={`mx-4 mb-3 flex items-center gap-3 p-3 rounded-xl border ${suggestion.kind === 'up' ? 'border-success/40 bg-success/10' : 'border-line bg-raised/50'}`}>
+          <span className={`grid place-items-center size-9 rounded-lg shrink-0 ${suggestion.kind === 'up' ? 'bg-success text-bg' : 'bg-primary/15 text-primary'}`}><TrendingUp size={17} aria-hidden="true" /></span>
+          <div className="flex-1 min-w-0">
+            <div className="text-sm font-semibold">
+              Objectif du jour : <span className="tabular">{suggestion.sec != null ? `${suggestion.sec} s` : `${suggestion.kg ? `${fmt(suggestion.kg, 2)} kg × ` : ''}${suggestion.reps} reps`}</span>
+              <span className={`ml-1.5 text-xs font-bold ${suggestion.kind === 'up' ? 'text-success' : 'text-primary'}`}>{suggestion.delta}</span>
+            </div>
+            <div className="text-xs text-muted truncate" title={suggestion.reason}>{suggestion.reason}</div>
+          </div>
+          {pending.length > 0 && (applied
+            ? <span className="text-xs font-semibold text-success shrink-0 flex items-center gap-1"><Check size={14} aria-hidden="true" />Appliqué</span>
+            : <button className="btn-ghost btn-sm shrink-0" onClick={applySuggestion}><Wand2 size={14} aria-hidden="true" />Appliquer</button>)}
+        </div>
+      )}
+
       {noteOpen && (
         <div className="px-4 pb-3">
           <textarea value={we.note} onChange={(e) => s.setNote(we.id, e.target.value)} rows={2} placeholder="Ressenti, réglage machine, douleur…"
@@ -315,7 +363,7 @@ function ExerciseBlock({ we, index, count, history, onInfo }) {
 
                 <div className="flex items-center justify-end gap-1">
                   <button
-                    onClick={() => s.toggleSet(we.id, st.id)} aria-pressed={st.done} aria-label={st.done ? 'Annuler la validation' : 'Valider la série'}
+                    onClick={() => { if (!st.done) onSetDone?.(we, st); s.toggleSet(we.id, st.id) }} aria-pressed={st.done} aria-label={st.done ? 'Annuler la validation' : 'Valider la série'}
                     className={`grid place-items-center size-10 rounded-xl transition cursor-pointer ${st.done ? 'bg-success text-bg animate-pop' : 'bg-line text-muted hover:bg-faint/40 hover:text-ink'}`}
                   ><Check size={18} strokeWidth={3} /></button>
                 </div>

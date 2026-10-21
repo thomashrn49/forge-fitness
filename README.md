@@ -35,11 +35,14 @@ C’est une **Progressive Web App** : on l’ouvre une fois dans le navigateur d
 - Saisie **série par série** (charge, répétitions, durée, distance) avec la performance de la séance précédente pré-remplie
 - **Minuteur de repos** automatique au moment où une série est validée, avec signal sonore et vibration
 - Séries d’échauffement, notes par exercice, réorganisation des exercices
+- **Surcharge progressive** : l’app propose l’objectif du jour pour chaque exercice (« +2,5 kg » quand toutes les séries ont atteint le haut de la fourchette, sinon « +1 rep »), applicable en un geste
+- **Célébration des records** en direct : confettis, vibration et son quand une série bat ton record
 - **Calories et volume en direct**, écran maintenu allumé pendant la séance
 - Bilan de fin de séance : records battus, XP gagnée, muscles travaillés
 
 ### 📚 137 exercices
 - Musculation, poids du corps, cardio, fonctionnel et **mobilité**
+- **Démonstration en photos réelles** (position de départ et d’arrivée enchaînées en boucle, lecture lente, pause) pour 130 exercices, disponibles hors ligne après le premier affichage
 - Pour chaque exercice : exécution pas à pas, **erreurs à éviter**, conseil du coach, muscles ciblés sur une **carte anatomique**, dépense estimée
 - **Séries / répétitions / repos conseillés selon ton objectif** (force, prise de muscle, perte de gras, forme)
 - **Alternatives** qui ciblent les mêmes muscles (machine prise, matériel absent…)
@@ -99,6 +102,7 @@ Le pas-à-pas est aussi disponible dans l’app (menu **Installer l’app**).
 | État & persistance | Zustand + couche de stockage IndexedDB maison (`src/lib/storage.js`) |
 | Application installable | vite-plugin-pwa (Workbox) : manifeste, service worker, cache hors ligne, mises à jour à la demande |
 | Polices | Barlow / Barlow Condensed embarquées (aucune dépendance réseau) |
+| Photos d’exercices | [Free Exercise DB](https://github.com/yuhonas/free-exercise-db) (domaine public), converties en WebP (≈ 3,6 Mo), mises en cache à la demande |
 | Build & hébergement | Vite, Cloudflare Pages (publication automatique à chaque push sur `main`) |
 
 ## Structure

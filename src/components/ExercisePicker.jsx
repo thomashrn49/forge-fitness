@@ -6,6 +6,7 @@ import { searchExercises } from '../lib/search'
 import { Highlight } from './SmartSearch'
 import { useStore } from '../lib/store'
 import { useIncremental } from '../lib/useIncremental'
+import { hasDemo, demoThumb } from '../data/demos'
 
 
 export default function ExercisePicker({ open, onClose, onPick, title = 'Ajouter des exercices' }) {
@@ -65,6 +66,9 @@ export default function ExercisePicker({ open, onClose, onPick, title = 'Ajouter
                 <span className={`grid place-items-center size-6 rounded-md border shrink-0 ${on ? 'bg-primary border-primary text-bg' : 'border-faint'}`}>
                   {on && <Check size={14} strokeWidth={3} aria-hidden="true" />}
                 </span>
+                {hasDemo(e.id)
+                  ? <img src={demoThumb(e.id)} alt="" loading="lazy" decoding="async" width="56" height="38" className="w-14 h-[38px] rounded-lg object-cover bg-raised shrink-0" />
+                  : <span className="w-14 h-[38px] rounded-lg bg-raised shrink-0" aria-hidden="true" />}
                 <span className="min-w-0">
                   <span className="block font-semibold truncate"><Highlight text={e.name} query={q} /></span>
                   <span className="block text-sm text-muted truncate">{e.primary.map((m) => MUSCLES[m]).join(', ')} · {e.equipment}</span>

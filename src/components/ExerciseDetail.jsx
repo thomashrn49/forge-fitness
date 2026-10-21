@@ -4,6 +4,8 @@ import { Star, Plus, Play, Lightbulb, Flame, Trophy, Dumbbell, AlertTriangle, Ta
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts'
 import { Modal, LevelDots, ChartTooltip } from './ui'
 import BodyMap from './BodyMap'
+import ExerciseDemo from './ExerciseDemo'
+import { hasDemo } from '../data/demos'
 import { EX_BY_ID, EXERCISES, MUSCLES, LEVELS } from '../data/exercises'
 import { useStore } from '../lib/store'
 import { e1rm, fmt, fmtDate, isDone } from '../lib/calc'
@@ -121,6 +123,8 @@ export default function ExerciseDetail({ exId, onClose }) {
         </p>
       )}
 
+      <ExerciseDemo exId={ex.id} name={ex.name} className="mb-6" />
+
       <div className="grid md:grid-cols-[minmax(0,240px)_1fr] gap-6">
         <div className="card p-4 bg-raised/40">
           <BodyMap primary={ex.primary} secondary={ex.secondary} />
@@ -231,6 +235,7 @@ export default function ExerciseDetail({ exId, onClose }) {
           </ul>
         )}
       </div>
+      {hasDemo(ex.id) && <p className="text-[11px] text-faint mt-6">Photos de démonstration : Free Exercise DB (domaine public).</p>}
     </Modal>
   )
 }
